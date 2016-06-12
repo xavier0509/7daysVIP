@@ -1,0 +1,99 @@
+body{
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+#bgImg{
+	width: 100%;
+	height: 100%;
+	z-index: 1000;
+}
+#loadInfo{
+	position: absolute;
+	top: 83%;
+	left: 40.5%;
+}
+#button{
+	position: fixed;
+	left: 37.5%;
+	top: 62%;
+	z-index: 1000;
+	width: 313px;
+	height: 134px;
+}
+#bgButton{
+	position: fixed;
+	left: 100%;
+	top: 100%;
+	z-index: 1000;
+	border: 0px;
+	background-color: rgba(0,0,0,0);
+}
+#fgButton{
+	position: fixed;
+	left: 100%;
+	top: 100%;
+	z-index: 1111;
+	border: 0px;
+	background-color: rgba(0,0,0,0);
+}
+#border{
+	position: fixed;
+	left: 37.5%;
+	top: 62%;
+	z-index: 1000;
+	width: 313px;
+	height: 134px;
+}
+#info{
+	position: fixed;
+	left: 32.43%;
+	top: 54.465%;
+	z-index: 1002;
+}
+#rightnow{
+	position: fixed;
+	left: 41%;
+	top:50%;
+	z-index: 1002;
+}
+#littleborder{
+	position: fixed;
+	left: 41%;
+	top:50%;
+	z-index: 1002;
+}
+
+#bg {
+  display: none;
+  position: fixed;
+  top: 0%;
+  left: 0%;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  z-index:1001;
+  -moz-opacity: 0.7;
+  opacity:.70;
+  filter: alpha(opacity=70);
+}
+#show{
+	display: none;
+}
+#toast{
+	display: none;
+}
+#toastImg{
+	position: absolute;
+	top: 40%;
+	left: 12%;
+	z-index: 1234;
+}
+#toastInfo{
+	position: absolute;
+	top: 51.5%;
+	left: 38%;
+	z-index: 1235;
+	font-size: 23px;
+}

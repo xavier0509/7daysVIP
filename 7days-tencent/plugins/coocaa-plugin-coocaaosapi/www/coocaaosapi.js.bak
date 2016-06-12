@@ -1,0 +1,538 @@
+
+cordova.define("coocaa-plugin-coocaaosapi.coocaaosapi", function(require, exports, module) {
+
+   var argscheck = require('cordova/argscheck'),
+           channel = require('cordova/channel'),
+           exec = require('cordova/exec'),
+           cordova = require('cordova'),
+           startapp = require('com.lampa.startapp.startapp'),
+           brocaster = require('cordova-plugin-broadcaster.broadcaster');
+
+           channel.createSticky('onCoocaaOsInitReady');
+           channel.waitForInitialization('onCoocaaOsInitReady');
+
+     //   console.log(JSON.stringify(config));
+       function CoocaaOSApi(){
+            var thiz = this;
+             channel.onCordovaReady.subscribe(function(){
+                thiz.waitForCoocaaOSInitReady(function(message){
+                    console.log('success CoocaaOSInitReady ' +message);
+                    channel.onCoocaaOsInitReady.fire();
+                 },function(message){
+                    console.log('error : ' + message);
+                    //TODO: FIX ERROR...
+                   });
+             });
+       }
+
+       CoocaaOSApi.prototype.waitForCoocaaOSInitReady = function(success,error){
+            argscheck.checkArgs('ff','CoocaaOSApi.waitForCoocaaOSInitReady',arguments);
+            exec(success,error,'CoocaaOSApi','waitForOSReady',[]);
+        }
+
+/*************************************内置应用相关*************************************************/
+/*
+* 启动本地媒体
+*/
+    CoocaaOSApi.prototype.startLocalMedia = function(success,error){
+        argscheck.checkArgs('ff','CoocaaOSApi.startLocalMedia',arguments);
+        navigator.startApp.check("com.tianci.localmedia", function(message) { /* success */
+           navigator.startApp.start([["com.tianci.localmedia", "com.tianci.localmedia.MainActivity"]], success,error);
+        },
+        error);
+    }
+
+/*
+*启动电视设置
+*/
+     CoocaaOSApi.prototype.startTVSetting = function(success,error){
+     argscheck.checkArgs('ff','CoocaaOSApi.startTVSetting',arguments);
+             navigator.startApp.check("com.tianci.setting", function(message) { /* success */
+                navigator.startApp.start([["com.tianci.setting", "com.tianci.setting.TianciSetting"]], success,error);
+             },
+             error);
+     }
+
+/*
+*启动信号源
+*/
+     CoocaaOSApi.prototype.startSourceList = function(success,error){
+         argscheck.checkArgs('ff','CoocaaOSApi.startSourceList',arguments);
+         exec(success,error,'CoocaaOSApi','launchSourceList',[]);
+      }
+
+/*
+*启动二维码
+*/
+    CoocaaOSApi.prototype.startQRCode = function(success,error){
+        argscheck.checkArgs('ff','CoocaaOSApi.startTVSetting',arguments);
+         navigator.startApp.check("com.tianci.qrcode", function(message) { /* success */
+         navigator.startApp.start([["com.tianci.qrcode", "com.tianci.qrcode.SkyQrcode"]], success,error);
+          },
+          error);
+      }
+
+/*
+*启动影视历史
+*/
+     CoocaaOSApi.prototype.startMovieHistory = function(success,error){
+            argscheck.checkArgs('ff','CoocaaOSApi.startMovieHistory',arguments);
+             navigator.startApp.start([["action", "coocaa.intent.movie.history"]], success,error);
+     }
+
+/*
+*启动我的游戏
+*/
+      CoocaaOSApi.prototype.startMyGames = function(success,error){
+            argscheck.checkArgs('ff','CoocaaOSApi.startMyGames',arguments);
+             navigator.startApp.start([["action", "coocaa.intent.action.GAME_CENTER_MYGAME"]], success,error);
+      }
+
+
+/*
+* 启动我的应用
+* mode: child / 其他，代表启动的是哪个模式下的程序
+*/
+      CoocaaOSApi.prototype.startMyApps = function(mode,success,error){
+            argscheck.checkArgs('sff','CoocaaOSApi.startMyApps',arguments);
+            if(mode=='child')
+            {
+                navigator.startApp.start([["action", "coocaa.intent.action.MYAPP_CHILD_MODEL"]], success,error);
+            }
+            else
+            {
+                navigator.startApp.start([["action", "coocaa.intent.action.APP_STORE_MYAPPS"]], success,error);
+            }
+      }
+
+/*
+*启动用户设置
+*/
+      CoocaaOSApi.prototype.startUserSetting = function(success,error){
+            argscheck.checkArgs('ff','CoocaaOSApi.startUserSetting',arguments);
+             navigator.startApp.start([["action", "android.settings.ADD_ACCOUNT_SETTINGS"]], success,error);
+      }
+
+/*
+*启动网络设置
+*/
+      CoocaaOSApi.prototype.startNetSetting = function(success,error){
+            argscheck.checkArgs('ff','CoocaaOSApi.startNetSetting',arguments);
+             navigator.startApp.start([["action", "android.settings.NETWORK_OPERATOR_SETTINGS"]], success,error);
+      }
+
+/*
+*启动蓝牙设置
+*/
+      CoocaaOSApi.prototype.startBlueToothSetting = function(success,error){
+            argscheck.checkArgs('ff','CoocaaOSApi.startBlueToothSetting',arguments);
+             navigator.startApp.start([["action", "android.settings.BLUETOOTH_SETTINGS"]], success,error);
+      }
+
+/*
+*启动消息盒子
+*/
+      CoocaaOSApi.prototype.startMessageBox = function(success,error){
+            argscheck.checkArgs('ff','CoocaaOSApi.startMessageBox',arguments);
+            navigator.startApp.start([["action", "com.coocaa.action.MESSAGEBOX"]], success,error);
+      }
+
+/*
+* 启动升级界面
+*/
+     CoocaaOSApi.prototype.startSystemUpgrade = function(success,error){
+          argscheck.checkArgs('ff','CoocaaOSApi.startSystemUpgrade',arguments);
+          navigator.startApp.start([["action", "android.settings.SYSTEM_UPGRADE"]], success,error);
+      }
+
+/*
+* TODO:启动支付界面
+*/
+     CoocaaOSApi.prototype.startPayment = function(detailid,success,error){
+           argscheck.checkArgs('sff','CoocaaOSApi.startMovieList',arguments);
+           console.log('startPayment not implement');
+      }
+
+/*******************************************影视相关***********************************************/
+
+    function MovieItem(){
+        var thiz = this;
+    }
+
+/*
+* 启动影视列表页
+*/
+  CoocaaOSApi.prototype.startMovieList = function(listid,success,error){
+           argscheck.checkArgs('sff','CoocaaOSApi.startMovieList',arguments);
+           navigator.startApp.start([["action", "coocaa.intent.movie.list"],[{'id':listid}]], success,error);
+      }
+/*
+* 启动影视详情页
+*/
+  CoocaaOSApi.prototype.startMovieDetail = function(detailid,success,error){
+            argscheck.checkArgs('sff','CoocaaOSApi.startMovieDetail',arguments);
+            navigator.startApp.start([["action", "ccoocaa.intent.movie.detailinfo"],[{'id':detailid}]], success,error);
+      }
+
+/*
+*启动影视专题页
+*/
+  CoocaaOSApi.prototype.startMovieTopic = function(topicid,success,error){
+            argscheck.checkArgs('sff','CoocaaOSApi.startMovieTopic',arguments);
+            navigator.startApp.start([["action", "coocaa.intent.movie.special"],[{'id':topicid}]], success,error);
+      }
+
+/*
+*启动影视会员中心
+*/
+   CoocaaOSApi.prototype.startMovieMemberCenter = function(success,error){
+        argscheck.checkArgs('ff','CoocaaOSApi.startMovieMemberCenter',arguments);
+        navigator.startApp.start([["action", "coocaa.intent.vip.center "]], success,error);
+   }
+
+/*
+*  TODO:启动影视播放器
+*  movieitem 未定义
+*/
+   CoocaaOSApi.prototype.playOnlineMovie = function(movieitem,success,error){
+        argscheck.checkArgs('off','CoocaaOSApi.playOnlineMovier',arguments);
+        exec(success,error,'CoocaaOSApi','startOnLinePlayer',[movieitem]);
+   }
+
+/*******************************************应用相关***********************************************/
+
+/*
+*启动应用商城
+*/
+    CoocaaOSApi.prototype.startAppStore = function(success,error){
+        argscheck.checkArgs('ff','CoocaaOSApi.startAppStore',arguments);
+        navigator.startApp.start([["action", "coocaa.intent.action.APP_STORE_HOME"]], success,error);
+    }
+
+/*
+*启动应用商城榜单页
+*/
+   CoocaaOSApi.prototype.startAppStoreBD = function(success,error){
+         argscheck.checkArgs('ff','CoocaaOSApi.startAppStoreBD',arguments);
+         navigator.startApp.start([["action", "coocaa.intent.action.APP_STORE_BD"]], success,error);
+     }
+
+/*
+*启动应用商城分类页
+*/
+    CoocaaOSApi.prototype.startAppStoreSort = function(sortid,success,error){
+        argscheck.checkArgs('sff','CoocaaOSApi.startAppStoreSort',arguments);
+        navigator.startApp.start([["action", "coocaa.intent.action.APP_STORE_SORT"],[{'sortid':sortid}]], success,error);
+    }
+
+/*
+*启动应用商城列表页
+*/
+    CoocaaOSApi.prototype.startAppStoreList = function(listid,success,error){
+        argscheck.checkArgs('sff','CoocaaOSApi.startAppStoreList',arguments);
+        navigator.startApp.start([["action", "coocaa.intent.action.APP_STORE_LIST"],[{'listId':listid}]], success,error);
+    }
+
+/*
+*启动应用商城详情页
+*可以传递pkg或者id
+*/
+    CoocaaOSApi.prototype.startAppStoreDetailByPackage = function(pkgname,success,error){
+        argscheck.checkArgs('sff','CoocaaOSApi.startAppStoreDetailByPackage',arguments);
+        navigator.startApp.start([["action", "coocaa.intent.action.APP_STORE_DETAIL"],[{'packageName':pkgname}]], success,error);
+    }
+
+/*
+*启动应用商城详情页
+*可以传递pkg或者id
+*/
+    CoocaaOSApi.prototype.startAppStoreDetailByID = function(id,success,error){
+        argscheck.checkArgs('sff','CoocaaOSApi.startAppStoreDetailByID',arguments);
+        navigator.startApp.start([["action", "coocaa.intent.action.APP_STORE_DETAIL"],[{'id':id}]], success,error);
+    }
+
+/*
+*启动应用商城专题页
+*/
+    CoocaaOSApi.prototype.startAppStoreZone = function(zoneid,success,error){
+        argscheck.checkArgs('sff','CoocaaOSApi.startAppStoreZone',arguments);
+        navigator.startApp.start([["action", "coocaa.intent.action.ZONEPAGE"],[{'id':zoneid}]], success,error);
+    }
+
+    function AppTask()
+    {
+        var thiz = this;
+    }
+
+/*
+* TODO:下载应用/暂停应用商城任务接口
+* message.result 未定义
+*/
+    CoocaaOSApi.prototype.executeAppTask = function(task,success,error){
+         argscheck.checkArgs('off','CoocaaOSApi.executeAppTask',arguments);
+         exec(function getSuccess(message){
+                    //message.result
+                    //...
+                    success(message);
+                },error,'CoocaaOSApi','executeAppTask',[task]);
+    }
+
+/*
+* TODO:删除应用商城任务接口
+*/
+    CoocaaOSApi.prototype.deleteAppTask = function(task,success,error){
+         argscheck.checkArgs('off','CoocaaOSApi.deleteAppTask',arguments);
+         exec(function getSuccess(message){
+                    //message.result
+                    //...
+                    success(message);
+                },error,'CoocaaOSApi','deleteAppTask',[task]);
+    }
+
+/*
+* TODO:监听应用商城下载任务状态回调接口
+*/
+    CoocaaOSApi.prototype.addAppTaskListener = function(listener)
+    {
+         argscheck.checkArgs('f','CoocaaOSApi.addAppTaskListener',arguments);
+         brocaster.addEventListener( "APP_TASK_CALLBACK", function( e ) {
+                 /*log: NET_CHANGGED received! userInfo: {"data":"test"}*/
+                 console.log( "APP_TASK_CALLBACK received! messageInfo: " + JSON.stringify(e)  );
+                 listener(e);
+          });
+    }
+
+/*******************************************游戏相关***********************************************/
+/*
+* 启动酷游吧
+*/
+ CoocaaOSApi.prototype.startGameCenter = function(success,error){
+        argscheck.checkArgs('ff','CoocaaOSApi.startGameCenter',arguments);
+        navigator.startApp.start([["action", "coocaa.intent.action.GAME_CENTER_HOME"]], success,error);
+    }
+
+/*
+*启动酷游吧游戏详情页
+*可以传递pkg或者id
+*/
+    CoocaaOSApi.prototype.startGameCenterDetailByID = function(id,success,error){
+        argscheck.checkArgs('sff','CoocaaOSApi.startGameCenterDetailByID',arguments);
+        navigator.startApp.start([["action", "coocaa.intent.action.GAME_CENTER_DETAIL"],[{'id':id}]], success,error);
+    }
+
+/*
+*启动酷游吧游戏详情页
+*可以传递pkg或者id
+*/
+    CoocaaOSApi.prototype.startGameCenterDetailByPackage = function(pkg,success,error){
+        argscheck.checkArgs('sff','CoocaaOSApi.startGameCenterDetailByPackage',arguments);
+        navigator.startApp.start([["action", "coocaa.intent.action.GAME_CENTER_DETAIL"],[{'packageName':pkg}]], success,error);
+    }
+
+/*
+*启动酷游吧游戏列表页
+*/
+    CoocaaOSApi.prototype.startGameCenterList = function(id,title,success,error){
+        argscheck.checkArgs('ssff','CoocaaOSApi.startGameCenterList',arguments);
+        navigator.startApp.start([["action", "coocaa.intent.action.GAME_CENTER_LIST"],[{'id':id,'title':title}]], success,error);
+    }
+
+/*
+*启动酷游吧游戏专题页
+*/
+    CoocaaOSApi.prototype.startGameCenterZone = function(id,success,error){
+        argscheck.checkArgs('sff','CoocaaOSApi.startGameZone',arguments);
+        navigator.startApp.start([["action", "coocaa.intent.action.GAME_CENTER_ZONE"],[{'id':id}]], success,error);
+    }
+
+/*
+*启动军火库
+*/
+    CoocaaOSApi.prototype.startGameArsenal = function(success,error){
+            argscheck.checkArgs('ff','CoocaaOSApi.startGameArsenal',arguments);
+            navigator.startApp.start([["action", "coocaa.intent.action.GAME_CENTER_ARSENAL"]], success,error);
+        }
+
+/*******************************************系统相关***********************************************/
+/*
+* 判断当前是否有用户登录
+/*function (message){
+                console.log("haslogin " + message.haslogin);
+            }
+   return:
+   true: 已经登录
+   false: 未登录
+*/
+CoocaaOSApi.prototype.hasCoocaaUserLogin = function(success,error){
+        argscheck.checkArgs('ff','CoocaaOSApi.hasCoocaaUserLogin',arguments);
+        exec(success,error,'CoocaaOSApi','hasCoocaaUserLogin',[]);
+   }
+
+/*
+* 获取当前用户信息
+* 主要的信息是open_id
+*
+/*function (message){
+                console.log("address " + message.address);
+                console.log("avatar " + message.avatar);
+                console.log("avatars " + message.avatars);
+                console.log("birthday " + message.birthday);
+                console.log("city " + message.city);
+                console.log("corp " + message.corp);
+                console.log("district " + message.district);
+                console.log("education_grade " + message.education_grade);
+                console.log("email " + message.email);
+                console.log("gender " + message.gender);
+                console.log("idcard " + message.idcard);
+                console.log("line " + message.line);
+                console.log("mobile " + message.mobile);
+                console.log("nick_name " + message.nick_name);
+                console.log("occupation " + message.occupation);
+                console.log("open_id " + message.open_id);
+                console.log("oss_id " + message.oss_id);
+                console.log("postcode " + message.postcode);
+                console.log("province " + message.province);
+                console.log("qq " + message.qq);
+                console.log("region " + message.region);
+                console.log("region_id " + message.region_id);
+                console.log("revenue " + message.revenue);
+                 console.log("score " + message.score);
+                 console.log("sky_id " + message.sky_id);
+                 console.log("skype " + message.skype);
+                 console.log("slogan " + message.slogan);
+                 console.log("tel1 " + message.tel1);
+                 console.log("tel2 " + message.tel2);
+                 console.log("visit_num " + message.visit_num);
+                 console.log("wechat " + message.wechat);
+                 console.log("weibo " + message.weibo);
+                 console.log("balance " + message.balance);
+                 console.log("third_account " + message.third_account);
+                 console.log("external_info " + message.external_info);
+            }
+*/
+CoocaaOSApi.prototype.getUserInfo = function(success,error){
+        argscheck.checkArgs('ff','CoocaaOSApi.getUserInfo',arguments);
+        exec(success,error,'CoocaaOSApi','getUserInfo',[]);
+   }
+
+/*
+* 获取当前设备信息
+* message {"pennel","version","model","type","mac","chip"}
+/*function (message){
+                console.log("panel " + message.panel);
+                console.log("version " + message.version);
+                console.log("model " + message.model);
+                 console.log("type " + message.type);
+                  console.log("mac " + message.mac);
+                  console.log("chip " + message.chip);
+                  console.log("androidsdk " + message.androidsdk);
+            }
+   return:
+   panel:屏幕尺寸
+   version:酷开TV系统版本号
+   model:生产机芯
+   type:生产机型
+   mac:设备mac(有线)
+   chip:芯片
+   androidsdk:android版本号
+   devid:设备唯一id
+   activeid:设备激活id/联网之后由后台分配
+*/
+CoocaaOSApi.prototype.getDeviceInfo = function(success,error){
+    argscheck.checkArgs('ff','CoocaaOSApi.getDeviceInfo',arguments);
+    exec(success,error,'CoocaaOSApi','getDeviceInfo',[]);
+}
+
+/*
+* 判断网络是否连接
+/*function (message){
+                console.log("isnetworking " + message.isnetworking);
+            }
+   return:
+   true: 联网
+   false:未联网
+*/
+CoocaaOSApi.prototype.isNetConnected = function(success,error){
+    argscheck.checkArgs('ff','CoocaaOSApi.isNetConnected',arguments);
+            exec(success,error,'CoocaaOSApi','isNetConnected',[]);
+}
+
+/*
+* 获取当前网络类型
+/*function (message){
+                console.log("nettype " + message.nettype);
+            }
+   return:
+     ETHERNET：有线网络
+     WIFI：wifi网络
+     PPPOE：以太网络，小区网络
+     UNKNOW：未知
+*/
+CoocaaOSApi.prototype.getNetType = function(success,error){
+    argscheck.checkArgs('ff','CoocaaOSApi.getNetType',arguments);
+    exec(success,error,'CoocaaOSApi','getNetType',[]);
+}
+
+/*
+* 获取当前网络ip地址的信息
+/*function (message){
+                console.log("dns0 " + message.dns0);
+                console.log("dns1 " + message.dns0);
+                console.log("gateway " + message.dns0);
+                console.log("ip " + message.dns0);
+                console.log("mac " + message.dns0);
+                console.log("netmask " + message.dns0);
+            }
+return:
+  ip:ip地址
+  gateway:默认网关
+  netmask:子网掩码
+  dns0:主dns
+  dns1:备用dns
+  mac:mac地址
+*/
+CoocaaOSApi.prototype.getIpInfo= function(success,error){
+    argscheck.checkArgs('ff','CoocaaOSApi.getIpAddress',arguments);
+    exec(success,error,'CoocaaOSApi','getIpInfo',[]);
+}
+
+/*
+* 获取当前城市，设备所在地址
+* 获取到的message.contury,message.city,...
+* 可以根据当前ip调用其他接口获取当前电视的城市位置，精准到城市是可以的
+/*function (message){
+                console.log("location " + message.location);
+            }
+return:
+  location:位置信息，可能为两级或三级地址信息，比如："广东省,深圳市,"。
+*/
+CoocaaOSApi.prototype.getDeviceLocation = function(success,error){
+    argscheck.checkArgs('ff','CoocaaOSApi.getDeviceLocation',arguments);
+    exec(success,error,'CoocaaOSApi','getDeviceLocation',[]);
+}
+
+/*
+*TODO：增加网络广播事件监听
+*/
+CoocaaOSApi.prototype.addNetChangedListener = function(listener)
+{
+    argscheck.checkArgs('f','CoocaaOSApi.addNetChangedListener',arguments);
+    brocaster.addEventListener( "NET_CHANGGED", listener);
+}
+
+/*
+*
+/* function( message ) {
+        {"usbmount":"false","mountpath":"file:///mnt/usb/sda1"}
+        console.log( "USB_CHANGGED received! ismount: " + message.usbmount  );
+        console.log( "USB_CHANGGED received! mountpath: " + message.mountpath  );
+    }
+*/
+CoocaaOSApi.prototype.addUSBChangedListener = function(listener)
+{
+    argscheck.checkArgs('f','CoocaaOSApi.addUSBChangedListener',arguments);
+    brocaster.addEventListener( "USB_CHANGGED",listener);
+}
+
+   module.exports = new CoocaaOSApi();
+});
